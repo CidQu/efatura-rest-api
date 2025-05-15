@@ -95,4 +95,40 @@ class GibService
     {
         return 1;
     }
+
+    public function saveToDisk(string $uuid, ?string $dirName = null, ?string $fileName = null): string|bool
+    {
+        try {
+            return $this->gib->saveToDisk($uuid, $dirName, $fileName);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getHtml(string $uuid, bool $signed = true): mixed
+    {
+        try {
+            return $this->gib->getHtml($uuid, $signed);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function setToken(?string $token = null): void
+    {
+        try {
+            $this->gib->setToken($token);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getToken(): ?string
+    {
+        try {
+            return $this->gib->getToken();
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
 } 

@@ -31,4 +31,7 @@ return function (App $app) {
     $app->delete('/efatura/sil/{uuid}', [EfaturaController::class, 'deleteDraft']);
     $app->post('/efatura/start-sms-verification', [EfaturaController::class, 'startSmsVerification']);
     $app->post('/efatura/sign-draft', [EfaturaController::class, 'signDraft']);
+    $app->post('/efatura/save-pdf-to-disk', [EfaturaController::class, 'savePdfToDisk']);
+    $app->get('/efatura/html', [EfaturaController::class, 'getHtml']);
+    $app->post('/efatura/login', [EfaturaController::class, 'login']);
 };

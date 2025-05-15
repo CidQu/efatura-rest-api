@@ -25,9 +25,14 @@ class EfaturaController
         $data = $request->getParsedBody();
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
+        $userToken = $data['user_token'] ?? null;
 
         try {
-            $this->gibService->login($username, $password);
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
 
             $userData = $this->gibService->getUserData();
 
@@ -86,12 +91,12 @@ class EfaturaController
             if (isset($data['items']) && is_array($data['items'])) {
                 foreach ($data['items'] as $item) {
                     $unit = match(strtoupper($item['unit'] ?? 'ADET')) {
-                        'KG' => Unit::Kgm,
-                        'LT' => Unit::Ltr,
-                        'M3' => Unit::M3,
-                        'MT' => Unit::Mtr,
+                        'KG' => Unit::Kgm, //KILOGRAM
+                        'LT' => Unit::Ltr, //LITRE
+                        'M3' => Unit::M3, //METRE KÜP
+                        'MT' => Unit::Mtr, //METRE
                         'ADET' => Unit::Adet,
-                        'M2' => Unit::M2,
+                        'M2' => Unit::M2, //METRE KARE
                         'SAAT' => Unit::Saat,
                         'GUN' => Unit::Gun,
                         'AY' => Unit::Ay,
@@ -105,8 +110,9 @@ class EfaturaController
                             miktar: $item['quantity'] ?? 1,
                             birim: $unit,
                             birimFiyat: $item['unitPrice'] ?? 0,
-                            kdvOrani: $item['vatRate'] ?? 18,
+                            kdvOrani: $item['vatRate'] ?? 20, // TR'de ortalama 20 herhalde
                             iskontoOrani: $item['discountRate'] ?? 0,
+                            iskontoTutari: $item['discountAmount'] ?? 0,
                             iskontoTipi: $item['discountType'] ?? 'İskonto',
                             iskontoNedeni: $item['discountReason'] ?? ''
                         )
@@ -146,9 +152,14 @@ class EfaturaController
         $data = $request->getParsedBody();
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
+        $userToken = $data['user_token'] ?? null;
 
         try {
-            $this->gibService->login($username, $password);
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
             $downloadUrl = $this->gibService->getDownloadURL($uuid);
             $this->gibService->logout();
 
@@ -176,9 +187,14 @@ class EfaturaController
         $data = $request->getParsedBody();
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
+        $userToken = $data['user_token'] ?? null;
 
         try {
-            $this->gibService->login($username, $password);
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
             $result = $this->gibService->deleteDraft($uuid);
             $this->gibService->logout();
 
@@ -205,8 +221,13 @@ class EfaturaController
         $data = $request->getParsedBody();
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
+        $userToken = $data['user_token'] ?? null;
         try {
-            $this->gibService->login($username, $password);
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
             $operationId = $this->gibService->startSmsVerification();
             $this->gibService->logout();
             $response->getBody()->write(json_encode([
@@ -230,17 +251,110 @@ class EfaturaController
         $data = $request->getParsedBody();
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
+        $userToken = $data['user_token'] ?? null;
         $operationId = $data['operationId'] ?? '';
         $smsCode = $data['smsCode'] ?? '';
         $uuid = $data['uuid'] ?? '';
         try {
-            $this->gibService->login($username, $password);
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
             $result = $this->gibService->signDraft($smsCode, $operationId, [$uuid]);
             $rowCount = $this->gibService->rowCount();
             $this->gibService->logout();
             $response->getBody()->write(json_encode([
                 'success' => $result,
                 'rowCount' => $rowCount
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $this->gibService->logout();
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'details' => $this->gibService->isTestMode() ? 'Test mode is active' : 'Production mode is active'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    }
+
+    public function savePdfToDisk(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        $uuid = $data['uuid'] ?? '';
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
+        $userToken = $data['user_token'] ?? null;
+        $dirName = $data['dirName'] ?? null;
+        $fileName = $data['fileName'] ?? null;
+
+        try {
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
+            $result = $this->gibService->saveToDisk($uuid, $dirName, $fileName);
+            $this->gibService->logout();
+
+            $response->getBody()->write(json_encode([
+                'success' => (bool)$result,
+                'path' => $result
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $this->gibService->logout();
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'details' => $this->gibService->isTestMode() ? 'Test mode is active' : 'Production mode is active'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    }
+
+    public function getHtml(Request $request, Response $response): Response
+    {
+        // Support GET query parameters
+        $query = $request->getQueryParams();
+        $uuid = $query['uuid'] ?? '';
+        $username = $query['username'] ?? '';
+        $password = $query['password'] ?? '';
+        $userToken = $query['user_token'] ?? null;
+        $signed = isset($query['signed']) ? (bool)$query['signed'] : true;
+
+        try {
+            if ($userToken) {
+                $this->gibService->setToken($userToken);
+            } else {
+                $this->gibService->login($username, $password);
+            }
+            $html = $this->gibService->getHtml($uuid, $signed);
+            $this->gibService->logout();
+
+            $response->getBody()->write($html);
+            return $response->withHeader('Content-Type', 'text/html');
+        } catch (\Exception $e) {
+            $this->gibService->logout();
+            $response->getBody()->write('Error: ' . $e->getMessage());
+            return $response->withHeader('Content-Type', 'text/plain')->withStatus(400);
+        }
+    }
+
+    public function login(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
+        try {
+            $this->gibService->login($username, $password);
+            $token = $this->gibService->getToken();
+            $this->gibService->logout();
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'token' => $token
             ]));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {

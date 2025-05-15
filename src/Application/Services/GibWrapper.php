@@ -73,4 +73,19 @@ class GibWrapper
     {
         return $this->gib->completeSmsVerification($smsCode, $operationId, $uuids);
     }
+
+    public function saveToDisk(string $uuid, ?string $dirName = null, ?string $fileName = null): string|bool
+    {
+        return $this->gib->saveToDisk($uuid, $dirName, $fileName);
+    }
+
+    public function getHtml(string $uuid, bool $signed = true): mixed
+    {
+        return $this->gib->getHtml($uuid, $signed);
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->gib->getToken();
+    }
 } 
