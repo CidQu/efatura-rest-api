@@ -17,7 +17,7 @@ return function (App $app) {
     });
 
     $app->get('/', function (Request $request, Response $response) {
-        $response->getBody()->write('Hello world!');
+        $response->getBody()->write('Versiyon 1.1.1 EFatura API.\nMade by @cidqu\nhttps://github.com/cidqu');
         return $response;
     });
 
