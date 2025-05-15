@@ -8,7 +8,6 @@ deny from all
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Redirect to HTTPS
   # RewriteEngine On
   # RewriteCond %{HTTPS} off
   # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

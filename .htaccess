@@ -6,7 +6,6 @@ deny from all
 </Files>
 
 <IfModule mod_rewrite.c>
-  # Redirect to the public folder
   RewriteEngine On
   # RewriteBase /
   RewriteRule ^$ public/ [L]
