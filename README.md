@@ -3,6 +3,12 @@
 
 This REST API built with [mlevent/efatura](https://github.com/mlevent/fatura) package.
 
+**ONLY WORS WITH LATEST PHP 8.1**
+
+```bash
+brew install php@8.1
+```
+
 Only supports four operations currently:
 - Create Draft
 - Sign Draft (I'm not responsible if you sign something wrong or anything don't trust my code)
