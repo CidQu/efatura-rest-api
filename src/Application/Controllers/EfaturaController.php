@@ -91,10 +91,14 @@ class EfaturaController
             if (isset($data['items']) && is_array($data['items'])) {
                 foreach ($data['items'] as $item) {
                     $unit = match(strtoupper($item['unit'] ?? 'ADET')) {
+                        'KİLO' => Unit::Kgm, //KILOGRAM
                         'KG' => Unit::Kgm, //KILOGRAM
+                        'GR' => Unit::Grm, //GRAM
+                        'M' => Unit::Mtr, //METRRE
                         'LT' => Unit::Ltr, //LITRE
                         'M3' => Unit::M3, //METRE KÜP
                         'MT' => Unit::Mtr, //METRE
+                        'CM' => Unit::Cmt, //SANTİMETRE
                         'ADET' => Unit::Adet,
                         'M2' => Unit::M2, //METRE KARE
                         'SAAT' => Unit::Saat,
