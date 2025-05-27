@@ -53,13 +53,13 @@ class EfaturaController
             };
 
             $invoice = new InvoiceModel(
-                tarih: $data['invoiceDate'] ?? date('d/m/Y'),
+                tarih: $data['invoiceDate'] ? date('d/m/Y', strtotime(str_replace('/', '-', $data['invoiceDate']))) : date('d/m/Y'),
                 saat: $data['invoiceTime'] ?? date('H:i:s'),
                 paraBirimi: $currency,
                 dovizKuru: $data['exchangeRate'] ?? 0,
                 faturaTipi: $invoiceType,
-                vknTckn: $userData['taxNumber'] ?? '11111111110',
-                vergiDairesi: $userData['taxOffice'] ?? '',
+                vknTckn: $data['taxNumber'] ?? '11111111110',
+                vergiDairesi: $data['taxOffice'] ?? '',
                 aliciUnvan: $data['buyer']['name'] ?? '',
                 aliciAdi: $data['buyer']['firstName'] ?? '',
                 aliciSoyadi: $data['buyer']['lastName'] ?? '',
