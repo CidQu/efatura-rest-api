@@ -25,7 +25,7 @@
         "php": "^8.1",
         "ext-json": "*",
         "mlevent/fatura": "^0.3",
-        "grpc/grpc": "^1.57",
+        "grpc/grpc": "^1.74",
         "monolog/monolog": "^2.8",
         "php-di/php-di": "^7.0",
         "slim/psr7": "^1.5",
